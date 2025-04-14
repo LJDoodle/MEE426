@@ -145,7 +145,7 @@ void irtrack() //ir tracking function
   {
     drive(15);
   }
-  else if (sensorValueR < 200)
+  else if (sensorValueL < 200)
   {
     drive(-15);
   }
