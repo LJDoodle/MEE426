@@ -78,7 +78,8 @@ void loop()   // use button to start program
 } 
 
 
-void drive(int rate)
+
+void drive(int rate) // drives the robot forward, and turns it left or right as needed
 {
   if (rate > 10){
     direction = 1; //turn left
@@ -124,8 +125,7 @@ void drive(int rate)
   }
 }
 
-
-void stop()    // braking function
+void stop() // braking function
 {
   digitalWrite(EN1, LOW);
   digitalWrite(lm1, LOW);
@@ -141,11 +141,11 @@ void irtrack() //ir tracking function
   int sensorValueL = analogRead(A2);
   int sensorValueC = analogRead(A3);
 
-  if (sensorValueR < 200 || sensorValueC < 200)
+  if (sensorValueR > 200 || sensorValueC > 200)
   {
     drive(15);
   }
-  else if (sensorValueL < 200)
+  else if (sensorValueL > 200)
   {
     drive(-15);
   }
