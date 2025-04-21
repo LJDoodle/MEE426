@@ -12,6 +12,10 @@ float ir2 = A1; // front right ir sensor
 float ir3 = A2; // front left ir sensor
 float ir4 = A4; // front center ir sensor
 
+const int north = 6;  // beacon connections
+const int east = 7;
+const int west = 8;
+
 int val = 0;
 bool on = false;
 int error = 0; // the current error (i.e. how far away from optimal the robot is), gets moved to 'error_p' (previous error) at the end of each cycle.
@@ -52,14 +56,14 @@ void loop()   // use button to start program
     }
   }
 
-  if (!MODE)
+  if (!MODE)  // task 1 mode
   {
     int sensorValue = analogRead(A0);
     Serial.println(sensorValue);
     error = sensorValue - 230;
     de = error - error_p;
 
-    if(sensorValue < 120)
+    if(sensorValue < 120) // exit task 1
     {
       MODE = true;
     }
@@ -70,11 +74,14 @@ void loop()   // use button to start program
       drive(1*error+1*de); 
     }
 
-    // delay(100);
+     // delay(100);
   }
-  else{
-    irtrack()
+  else
+  {
+    irtrack();
   }
+
+  error_p = error; 
 } 
 
 
@@ -82,44 +89,38 @@ void loop()   // use button to start program
 void drive(int rate) // drives the robot forward, and turns it left or right as needed
 {
   if (rate > 10){
-    direction = 1; //turn left
-    if (!MODE) 
-    {
-      digitalWrite(EN1, LOW);
-      digitalWrite(lm1, HIGH);
-      digitalWrite(lm2, LOW);
-      analogWrite(EN1, rate);
-    }
-
+    //direction = 1; //turn left
+    digitalWrite(EN1, LOW);
+    digitalWrite(lm1, HIGH);
+    digitalWrite(lm2, LOW);
+    analogWrite(EN1, 200);
+    
     digitalWrite(EN2, LOW);
     digitalWrite(rm1, LOW);
     digitalWrite(rm2, HIGH);
-    analogWrite(EN2, rate);
+    analogWrite(EN2, 200);
   } 
   
   else if (rate < -10){
-    direction = -1; //turn right
+    //direction = -1; //turn right
     digitalWrite(EN1, LOW);
     digitalWrite(lm1, LOW);
     digitalWrite(lm2, HIGH);
-    analogWrite(EN1, rate);
+    analogWrite(EN1, 200);
 
-    if (!MODE) 
-    {
-      digitalWrite(EN2, LOW);
-      digitalWrite(rm1, HIGH);
-      digitalWrite(rm2, LOW);
-      analogWrite(EN2, rate);
-    }
+    digitalWrite(EN2, LOW);
+    digitalWrite(rm1, HIGH);
+    digitalWrite(rm2, LOW);
+    analogWrite(EN2, 200);
   } 
   
   else {
-    direction = 0; // go forward
-    analogWrite(EN1, 200);
+    //direction = 0; // go forward
+    analogWrite(EN1, 150);
     digitalWrite(lm1, HIGH); 
     digitalWrite(lm2, LOW);
 
-    analogWrite(EN2, 200);
+    analogWrite(EN2, 150);
     digitalWrite(rm1, HIGH);
     digitalWrite(rm2, LOW);
   }
@@ -141,16 +142,51 @@ void irtrack() //ir tracking function
   int sensorValueL = analogRead(A2);
   int sensorValueC = analogRead(A3);
 
-  if (sensorValueR > 200 || sensorValueC > 200)
+  if (sensorValueR > 400)
   {
     drive(15);
+    delay(750);
+    drive(0);
+    delay(1000);
+
   }
-  else if (sensorValueL > 200)
+  else if (sensorValueC > 400)
+  {
+    drive(15);
+    delay(750);
+    drive(0);
+    delay(1000);
+  }
+  else if (sensorValueL > 400)
   {
     drive(-15);
+    delay(750);
+    drive(0);
+    delay(1000);
   }
   else {
     //follow beacon
+    if (digitalRead(east) == LOW)
+    { 
+      if(digitalRead(north) != LOW)
+      {
+      drive(-15);
+      delay(500);
+      }
+    }
+
+    else if (digitalRead(west) == LOW)
+    {
+      if(digitalRead(north) != LOW)
+      {
+      drive(15);
+      delay(500);
+      }
+    }
+
+    else
+    {
+      drive(0);
+    }
   }
 }
-
